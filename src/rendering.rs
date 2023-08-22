@@ -26,7 +26,7 @@ fn render_circle(canvas: &mut WindowCanvas, center_x: i32, center_y: i32, radius
 
 fn render_sine_wave(canvas: &mut WindowCanvas, points: &mut Vec<Point>, new_y: i32) {
     canvas.set_draw_color(Color::RGB(255, 0, 0));
-    let new_point = Point::new(CIRCLE_CENTRE.0 + CIRCLE_RADIUS + 30, new_y);
+    let new_point = Point::new(CIRCLE_CENTRE.0 + CIRCLE_RADIUS, new_y);
     points.push(new_point);
     if points.len() > 1000 {
         points.remove(0);
@@ -41,7 +41,7 @@ fn render_sine_wave(canvas: &mut WindowCanvas, points: &mut Vec<Point>, new_y: i
 
 fn render_cosine_wave(canvas: &mut WindowCanvas, points: &mut Vec<Point>, new_x: i32) {
     canvas.set_draw_color(Color::RGB(0, 0, 255));
-    let new_point = Point::new(new_x, CIRCLE_CENTRE.1 - CIRCLE_RADIUS - 30);
+    let new_point = Point::new(new_x, CIRCLE_CENTRE.1 - CIRCLE_RADIUS);
     points.push(new_point);
     if points.len() > 1000 {
         points.remove(0);
@@ -55,11 +55,9 @@ fn render_cosine_wave(canvas: &mut WindowCanvas, points: &mut Vec<Point>, new_x:
 }
 
 fn render_tangent_wave(canvas: &mut WindowCanvas, points: &mut Vec<Point>, new_y: i32) {
-    // Render the tangent line
     canvas.set_draw_color(Color::RGB(150, 0, 150));
-    render_thick_line(canvas, Point::new(CIRCLE_CENTRE.0 + CIRCLE_RADIUS, 0), Point::new(CIRCLE_CENTRE.0 + CIRCLE_RADIUS, HEIGHT), 3);
     canvas.set_draw_color(Color::RGB(0, 150, 150));
-    let new_point = Point::new(CIRCLE_CENTRE.0 + 100, new_y);
+    let new_point = Point::new(CIRCLE_CENTRE.0 + CIRCLE_RADIUS, new_y);
     if points.len() > 1000 {
         points.remove(0);
     }
@@ -143,12 +141,12 @@ fn render_triangle_on_circle(canvas: &mut WindowCanvas, frame: i32) -> (Point, P
 
     // sin
     canvas.set_draw_color(Color::RGB(255, 0, 0));
-    render_full_circle_pixels(canvas, CIRCLE_CENTRE.0 + CIRCLE_RADIUS + 30, p2.y, 3);
-    canvas.draw_line(p2, Point::new(CIRCLE_CENTRE.0 + CIRCLE_RADIUS + 30, p2.y)).expect("Failed to draw line");
+    render_full_circle_pixels(canvas, CIRCLE_CENTRE.0 + CIRCLE_RADIUS, p2.y, 3);
+    canvas.draw_line(p2, Point::new(CIRCLE_CENTRE.0 + CIRCLE_RADIUS, p2.y)).expect("Failed to draw line");
     // cos
     canvas.set_draw_color(Color::RGB(0, 0, 255));
-    render_full_circle_pixels(canvas, p2.x, CIRCLE_CENTRE.1 - CIRCLE_RADIUS - 30, 3);
-    canvas.draw_line(p2, Point::new(p2.x, CIRCLE_CENTRE.1 - CIRCLE_RADIUS - 30)).expect("Failed to draw line");
+    render_full_circle_pixels(canvas, p2.x, CIRCLE_CENTRE.1 - CIRCLE_RADIUS, 3);
+    canvas.draw_line(p2, Point::new(p2.x, CIRCLE_CENTRE.1 - CIRCLE_RADIUS)).expect("Failed to draw line");
     // tan
     canvas.set_draw_color(Color::RGB(0, 150, 150));
     let gradient = (p2.y - CIRCLE_CENTRE.1) as f64 / (p2.x - CIRCLE_CENTRE.0) as f64;
@@ -187,8 +185,12 @@ fn render_thick_line(canvas: &mut WindowCanvas, p1: Point, p2: Point, thickness:
             canvas.draw_line(Point::new(p1.x + sign * offset, p1.y), Point::new(p2.x + sign * offset, p2.y)).expect("Failed to draw line");
             continue;
         }
-        let p1 = Point::new(p1.x + offset, (gradient * (p1.x + sign * offset - p1.x) as f64 + (sign * p1.y) as f64) as i32);
-        let p2 = Point::new(p2.x + offset, (gradient * (p2.x + sign * offset - p2.x) as f64 + (sign * p2.y) as f64) as i32);
+        let perp_gradient = -1.0 / gradient;
+        if perp_gradient.is_infinite() {
+            canvas.draw_line(Point::new(p1.x, p1.y + sign * offset), Point::new(p2.x, p2.y + sign * offset)).expect("Failed to draw line");
+            continue;
+        }
+        let (p1, p2) = (Point::new(p1.x + sign * offset, (perp_gradient * (p1.x - p2.x) as f64 + p2.y as f64) as i32), Point::new(p2.x + sign * offset, (perp_gradient * (p2.x - p1.x) as f64 + p1.y as f64) as i32));
         canvas.draw_line(p1, p2).expect("Failed to draw line");
     }
 }
