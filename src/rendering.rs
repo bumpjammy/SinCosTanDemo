@@ -32,7 +32,11 @@ fn render_sine_wave(canvas: &mut WindowCanvas, points: &mut Vec<Point>, new_y: i
         points.remove(0);
     }
     for i in 0..points.len() - 1 {
+        if points[i].x == 0 && points[i].y == 0 { continue; }
         canvas.draw_line(points[i], points[i + 1]).expect("Failed to draw line");
+    }
+    for i in 0..points.len() {
+        if points[i].x == 0 && points[i].y == 0 { continue; }
         points[i].x += 5;
     }
 }
@@ -45,7 +49,11 @@ fn render_cosine_wave(canvas: &mut WindowCanvas, points: &mut Vec<Point>, new_x:
         points.remove(0);
     }
     for i in 0..points.len() - 1 {
+        if points[i].x == 0 && points[i].y == 0 { continue; }
         canvas.draw_line(points[i], points[i + 1]).expect("Failed to draw line");
+    }
+    for i in 0..points.len() {
+        if points[i].x == 0 && points[i].y == 0 { continue; }
         points[i].y -= 5;
     }
 }
@@ -57,12 +65,26 @@ fn render_tangent_wave(canvas: &mut WindowCanvas, points: &mut Vec<Point>, new_y
     if points.len() > 1000 {
         points.remove(0);
     }
+
     points.push(new_point);
     for i in 0..points.len() - 1 {
+        if points[i].x == 0 && points[i].y == 0 {
+            continue;
+        }
         if (points[i].y - points[i + 1].y).abs() > 1000 {
             continue;
         }
         canvas.draw_line(points[i], points[i + 1]).expect("Failed to draw line");
+    }
+    for i in 0..points.len() {
+        if points[i].x == 0 && points[i].y == 0 {
+            continue;
+        }
+    }
+    for i in 0..points.len() {
+        if points[i].x == 0 && points[i].y == 0 {
+            continue;
+        }
         points[i].x += 5;
     }
 }
